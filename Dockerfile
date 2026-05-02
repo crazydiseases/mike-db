@@ -1,3 +1,3 @@
-FROM supabase/postgres:15.8.1.060
+FROM postgres:15-bookworm
 
-COPY mike_schema.sql /docker-entrypoint-initdb.d/99-mike-schema.sql
+COPY 00-auth-schema.sql /docker-entrypoint-initdb.d/00-auth-schema.sql
