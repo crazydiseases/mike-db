@@ -12,8 +12,8 @@ EXCEPTION WHEN duplicate_object THEN NULL;
 END \$\$;
 
 ALTER ROLE supabase_auth_admin SET search_path = 'auth';
+ALTER SCHEMA auth OWNER TO supabase_auth_admin;
 GRANT ALL ON SCHEMA auth TO supabase_auth_admin;
-GRANT CREATE ON SCHEMA auth TO supabase_auth_admin;
 
 DO \$\$ BEGIN CREATE ROLE anon NOLOGIN; EXCEPTION WHEN duplicate_object THEN NULL; END \$\$;
 DO \$\$ BEGIN CREATE ROLE authenticated NOLOGIN; EXCEPTION WHEN duplicate_object THEN NULL; END \$\$;
@@ -50,15 +50,10 @@ DO \$\$ BEGIN
 EXCEPTION WHEN duplicate_object THEN NULL;
 END \$\$;
 
-CREATE OR REPLACE FUNCTION auth.uid() RETURNS uuid AS \$func\$
-  SELECT nullif(current_setting('request.jwt.claim.sub', true), '')::uuid;
-\$func\$ LANGUAGE sql STABLE;
+ALTER TYPE auth.factor_type OWNER TO supabase_auth_admin;
+ALTER TYPE auth.factor_status OWNER TO supabase_auth_admin;
+ALTER TYPE auth.aal_level OWNER TO supabase_auth_admin;
+ALTER TYPE auth.code_challenge_method OWNER TO supabase_auth_admin;
+ALTER TYPE auth.one_time_token_type OWNER TO supabase_auth_admin;
 
-CREATE OR REPLACE FUNCTION auth.role() RETURNS text AS \$func\$
-  SELECT nullif(current_setting('request.jwt.claim.role', true), '')::text;
-\$func\$ LANGUAGE sql STABLE;
-
-CREATE OR REPLACE FUNCTION auth.email() RETURNS text AS \$func\$
-  SELECT nullif(current_setting('request.jwt.claim.email', true), '')::text;
-\$func\$ LANGUAGE sql STABLE;
 EOSQL
