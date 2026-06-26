@@ -12,7 +12,8 @@ RUN apt-get update -qq && apt-get install -y openssl && rm -rf /var/lib/apt/list
     && chmod 600 /etc/ssl/private/server.key \
     && chown postgres:postgres /etc/ssl/private/server.key /etc/ssl/certs/server.crt
 
-# Enable SSL in PostgreSQL configuration
-RUN echo "ssl = on" >> /usr/share/postgresql/postgresql.conf.sample \
-    && echo "ssl_cert_file = '/etc/ssl/certs/server.crt'" >> /usr/share/postgresql/postgresql.conf.sample \
-    && echo "ssl_key_file = '/etc/ssl/private/server.key'" >> /usr/share/postgresql/postgresql.conf.sample
+# Enable SSL via postgres command options
+CMD ["postgres", \
+     "-c", "ssl=on", \
+     "-c", "ssl_cert_file=/etc/ssl/certs/server.crt", \
+     "-c", "ssl_key_file=/etc/ssl/private/server.key"]
