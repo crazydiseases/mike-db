@@ -3,7 +3,7 @@ FROM postgres:15-bookworm
 COPY 00-auth-schema.sh /docker-entrypoint-initdb.d/00-auth-schema.sh
 RUN chmod +x /docker-entrypoint-initdb.d/00-auth-schema.sh
 
-# Generate self-signed SSL certificate for encrypted connections
+# Generate self-signed SSL certificate
 RUN apt-get update -qq && apt-get install -y openssl && rm -rf /var/lib/apt/lists/* \
     && openssl req -new -x509 -days 3650 -nodes \
        -subj "/CN=mike-db" \
@@ -12,7 +12,10 @@ RUN apt-get update -qq && apt-get install -y openssl && rm -rf /var/lib/apt/list
     && chmod 600 /etc/ssl/private/server.key \
     && chown postgres:postgres /etc/ssl/private/server.key /etc/ssl/certs/server.crt
 
-# Enable SSL via postgres command options
+# Write SSL config via entrypoint init script
+COPY 99-ssl.sh /docker-entrypoint-initdb.d/99-ssl.sh
+RUN chmod +x /docker-entrypoint-initdb.d/99-ssl.sh
+
 CMD ["postgres", \
      "-c", "ssl=on", \
      "-c", "ssl_cert_file=/etc/ssl/certs/server.crt", \
